@@ -1,6 +1,7 @@
 # Pomoflex Requirements
 
 ## Overview
+
 A simple, flexible, backendless pomodoro web application.
 
 ---
@@ -8,25 +9,30 @@ A simple, flexible, backendless pomodoro web application.
 ## Core Timer Functionality
 
 ### Timer Durations (Defaults)
+
 - **Work session:** 25 minutes
 - **Short break:** 5 minutes
 - **Long break:** 15 minutes
 - **Long break interval:** Every 4 pomodoros
 
 ### Rollover Feature (Break Deficit)
+
 When a work session ends, the user enters a **rollover window**. If they don't manually start a break within this window:
+
 - A new work session automatically begins
 - The earned break time is added to the **break deficit** (accumulated)
 - Deficit is **uncapped by default** (can grow indefinitely)
 - User can optionally configure a **max deficit** to cap accumulation
 
 When taking a break:
+
 - User can take **partial breaks** (e.g., 5 min break even if 20 min is banked)
 - Break time is deducted from the deficit
 
 **Example:** User completes 4 work sessions with rollover → deficit = 20 min (5+5+5+5). They could take a 10 min break, leaving 10 min still banked.
 
 ### Timer Behavior
+
 - **Work/break durations:** Fixed (25/5/15) — standard pomodoro technique
 - **Rollover timeout:** Configurable (default: 1 minute)
 - **Max break deficit:** Configurable (default: unlimited)

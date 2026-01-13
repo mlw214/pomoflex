@@ -7,30 +7,30 @@
    * @prop {'work' | 'break' | 'rollover'} sessionType - Current session type
    */
   export let seconds = 1500; // Default 25 minutes
-  export let sessionType = 'work';
+  export let sessionType = "work";
 
   // Format seconds into MM:SS (clamp to 0 to prevent negative display)
   $: clampedSeconds = Math.max(0, seconds);
   $: minutes = Math.floor(clampedSeconds / 60);
   $: secs = clampedSeconds % 60;
-  $: displayTime = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  $: displayTime = `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 
   // Map session type to display label
   const sessionLabels = {
-    work: 'Focus',
-    break: 'Break',
-    rollover: 'Rollover'
+    work: "Focus",
+    break: "Break",
+    rollover: "Rollover",
   };
 
   // Map session type to icon character (accessible fallback)
   const sessionIcons = {
-    work: '◆',
-    break: '○',
-    rollover: '◇'
+    work: "◆",
+    break: "○",
+    rollover: "◇",
   };
 
-  $: sessionLabel = sessionLabels[sessionType] || 'Focus';
-  $: sessionIcon = sessionIcons[sessionType] || '◆';
+  $: sessionLabel = sessionLabels[sessionType] || "Focus";
+  $: sessionIcon = sessionIcons[sessionType] || "◆";
 </script>
 
 <div class="timer-display" data-session={sessionType}>
