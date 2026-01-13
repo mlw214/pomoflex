@@ -7,22 +7,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This project follows a spec-driven development approach. Context may be cleared frequently to stay focused, so reference these docs to bootstrap:
 
 ### Key Documents
+
 - `docs/REQUIREMENTS.md` — Product requirements and tech stack decisions
 - GitHub Issues — Source of truth for tasks (use `gh issue list` to see open issues)
 
 ### Workflow Steps
+
 1. **Pick an issue** — Check open issues with `gh issue view <number>` for details
 2. **Create a feature branch** — Name format: `<issue-number>-short-description`
 3. **Implement** — Make changes, use Chrome integration to test visually
-4. **Commit** — Use [Conventional Commits](https://www.conventionalcommits.org/) format:
+4. **Review locally** - Use the code-reviewer agent to check code quality and find bugs
+5. **Commit** — Use [Conventional Commits](https://www.conventionalcommits.org/) format:
    - `feat:` for new features
    - `fix:` for bug fixes
    - `chore:` for maintenance tasks
    - `refactor:` for code restructuring
-5. **Create PR** — Push branch, open PR with `gh pr create`, reference the issue
-6. **User reviews and merges** — Wait for approval before moving to next issue
+6. **Create PR** — Push branch, open PR with `gh pr create`, reference the issue
+7. **User reviews and merges** — Wait for approval before moving to next issue
 
 ### Commands Reference
+
 ```bash
 # View open issues
 gh issue list
@@ -41,6 +45,7 @@ gh pr create --title "type: description" --body "..."
 ```
 
 ### Testing
+
 - Run `npm run dev` in background for local testing
 - Use Chrome integration (`mcp__claude-in-chrome__*`) for visual verification
 - Take screenshots to confirm UI changes
