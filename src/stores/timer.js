@@ -1,4 +1,4 @@
-import { writable, derived, get } from 'svelte/store';
+import { writable, derived, get } from "svelte/store";
 
 /**
  * Timer State Machine
@@ -19,10 +19,10 @@ import { writable, derived, get } from 'svelte/store';
 
 // Duration constants (in seconds)
 export const DURATIONS = {
-  work: 25 * 60,      // 25 minutes
+  work: 25 * 60, // 25 minutes
   shortBreak: 5 * 60, // 5 minutes
   longBreak: 15 * 60, // 15 minutes
-  rollover: 60        // 1 minute rollover window
+  rollover: 60, // 1 minute rollover window
 };
 
 // Long break interval (every N pomodoros)
@@ -31,11 +31,11 @@ export const LONG_BREAK_INTERVAL = 4;
 // Internal state
 const createTimerStore = () => {
   const { subscribe, set, update } = writable({
-    state: 'idle',           // idle | work | rollover | break
+    state: "idle", // idle | work | rollover | break
     seconds: DURATIONS.work, // seconds remaining
-    breakDeficit: 0,         // accumulated break time (seconds)
-    completedPomodoros: 0,   // count of completed work sessions
-    isPaused: false          // whether timer is paused (only applies to work state)
+    breakDeficit: 0, // accumulated break time (seconds)
+    completedPomodoros: 0, // count of completed work sessions
+    isPaused: false, // whether timer is paused (only applies to work state)
   });
 
   let intervalId = null;
@@ -65,19 +65,20 @@ const createTimerStore = () => {
       clearTimer();
 
       switch (currentState.state) {
-        case 'work': {
+        case "work": {
           // Work complete → enter rollover window
           const newPomodoros = currentState.completedPomodoros + 1;
-          const earnedBreak = newPomodoros % LONG_BREAK_INTERVAL === 0
-            ? DURATIONS.longBreak
-            : DURATIONS.shortBreak;
+          const earnedBreak =
+            newPomodoros % LONG_BREAK_INTERVAL === 0
+              ? DURATIONS.longBreak
+              : DURATIONS.shortBreak;
 
           set({
-            state: 'rollover',
+            state: "rollover",
             seconds: DURATIONS.rollover,
             breakDeficit: currentState.breakDeficit + earnedBreak,
             completedPomodoros: newPomodoros,
-            isPaused: false
+            isPaused: false,
           });
 
           // Start rollover countdown after state update
@@ -85,14 +86,14 @@ const createTimerStore = () => {
           break;
         }
 
-        case 'rollover': {
+        case "rollover": {
           // Rollover expired → auto-start new work session
           set({
-            state: 'work',
+            state: "work",
             seconds: DURATIONS.work,
             breakDeficit: currentState.breakDeficit,
             completedPomodoros: currentState.completedPomodoros,
-            isPaused: false
+            isPaused: false,
           });
 
           // Start work countdown after state update
@@ -100,14 +101,14 @@ const createTimerStore = () => {
           break;
         }
 
-        case 'break':
+        case "break":
           // Break complete → return to idle
           set({
-            state: 'idle',
+            state: "idle",
             seconds: DURATIONS.work,
             breakDeficit: currentState.breakDeficit,
             completedPomodoros: currentState.completedPomodoros,
-            isPaused: false
+            isPaused: false,
           });
           break;
 
@@ -116,7 +117,7 @@ const createTimerStore = () => {
       }
     } else {
       // Normal tick - just decrement seconds
-      update(state => ({ ...state, seconds: newSeconds }));
+      update((state) => ({ ...state, seconds: newSeconds }));
     }
   };
 
@@ -128,13 +129,13 @@ const createTimerStore = () => {
      */
     start: () => {
       const currentState = get({ subscribe });
-      if (currentState.state !== 'idle') return;
+      if (currentState.state !== "idle") return;
 
       set({
         ...currentState,
-        state: 'work',
+        state: "work",
         seconds: DURATIONS.work,
-        isPaused: false
+        isPaused: false,
       });
 
       startCountdown();
@@ -146,13 +147,13 @@ const createTimerStore = () => {
      */
     takeBreak: (duration) => {
       const currentState = get({ subscribe });
-      if (currentState.state !== 'rollover') return;
+      if (currentState.state !== "rollover") return;
 
       // Clamp requested duration to valid range
       const requestedDuration = duration ?? currentState.breakDeficit;
       const breakDuration = Math.min(
         Math.max(0, requestedDuration),
-        currentState.breakDeficit
+        currentState.breakDeficit,
       );
 
       if (breakDuration <= 0) {
@@ -160,20 +161,20 @@ const createTimerStore = () => {
         clearTimer();
         set({
           ...currentState,
-          state: 'idle',
+          state: "idle",
           seconds: DURATIONS.work,
-          isPaused: false
+          isPaused: false,
         });
         return;
       }
 
       clearTimer();
       set({
-        state: 'break',
+        state: "break",
         seconds: breakDuration,
         breakDeficit: currentState.breakDeficit - breakDuration,
         completedPomodoros: currentState.completedPomodoros,
-        isPaused: false
+        isPaused: false,
       });
 
       startCountdown();
@@ -184,14 +185,14 @@ const createTimerStore = () => {
      */
     skipBreak: () => {
       const currentState = get({ subscribe });
-      if (currentState.state !== 'rollover') return;
+      if (currentState.state !== "rollover") return;
 
       clearTimer();
       set({
         ...currentState,
-        state: 'work',
+        state: "work",
         seconds: DURATIONS.work,
-        isPaused: false
+        isPaused: false,
       });
 
       startCountdown();
@@ -202,10 +203,10 @@ const createTimerStore = () => {
      */
     pause: () => {
       const currentState = get({ subscribe });
-      if (currentState.state !== 'work' || currentState.isPaused) return;
+      if (currentState.state !== "work" || currentState.isPaused) return;
 
       clearTimer();
-      update(state => ({ ...state, isPaused: true }));
+      update((state) => ({ ...state, isPaused: true }));
     },
 
     /**
@@ -213,9 +214,9 @@ const createTimerStore = () => {
      */
     resume: () => {
       const currentState = get({ subscribe });
-      if (currentState.state !== 'work' || !currentState.isPaused) return;
+      if (currentState.state !== "work" || !currentState.isPaused) return;
 
-      update(state => ({ ...state, isPaused: false }));
+      update((state) => ({ ...state, isPaused: false }));
       startCountdown();
     },
 
@@ -224,11 +225,11 @@ const createTimerStore = () => {
      */
     stop: () => {
       clearTimer();
-      update(state => ({
+      update((state) => ({
         ...state,
-        state: 'idle',
+        state: "idle",
         seconds: DURATIONS.work,
-        isPaused: false
+        isPaused: false,
       }));
     },
 
@@ -238,11 +239,11 @@ const createTimerStore = () => {
     reset: () => {
       clearTimer();
       set({
-        state: 'idle',
+        state: "idle",
         seconds: DURATIONS.work,
         breakDeficit: 0,
         completedPomodoros: 0,
-        isPaused: false
+        isPaused: false,
       });
     },
 
@@ -251,25 +252,32 @@ const createTimerStore = () => {
      */
     destroy: () => {
       clearTimer();
-    }
+    },
   };
 };
 
 export const timer = createTimerStore();
 
 // Derived stores for convenience
-export const timerState = derived(timer, $timer => $timer.state);
-export const timerSeconds = derived(timer, $timer => $timer.seconds);
-export const breakDeficit = derived(timer, $timer => $timer.breakDeficit);
-export const completedPomodoros = derived(timer, $timer => $timer.completedPomodoros);
-export const isPaused = derived(timer, $timer => $timer.isPaused);
+export const timerState = derived(timer, ($timer) => $timer.state);
+export const timerSeconds = derived(timer, ($timer) => $timer.seconds);
+export const breakDeficit = derived(timer, ($timer) => $timer.breakDeficit);
+export const completedPomodoros = derived(
+  timer,
+  ($timer) => $timer.completedPomodoros,
+);
+export const isPaused = derived(timer, ($timer) => $timer.isPaused);
 
 // Map state to session type for TimerDisplay component
-export const sessionType = derived(timer, $timer => {
+export const sessionType = derived(timer, ($timer) => {
   switch ($timer.state) {
-    case 'work': return 'work';
-    case 'break': return 'break';
-    case 'rollover': return 'rollover';
-    default: return 'work';
+    case "work":
+      return "work";
+    case "break":
+      return "break";
+    case "rollover":
+      return "rollover";
+    default:
+      return "work";
   }
 });
