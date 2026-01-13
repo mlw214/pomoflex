@@ -1,5 +1,5 @@
 <script>
-  import TimerDisplay from './components/TimerDisplay.svelte';
+  import TimerDisplay from "./components/TimerDisplay.svelte";
   import {
     timer,
     timerState,
@@ -7,8 +7,8 @@
     sessionType,
     isPaused,
     breakDeficit,
-    completedPomodoros
-  } from './stores/timer.js';
+    completedPomodoros,
+  } from "./stores/timer.js";
 
   // Format seconds to human-readable duration
   const formatDuration = (seconds) => {
@@ -25,19 +25,19 @@
   <TimerDisplay seconds={$timerSeconds} sessionType={$sessionType} />
 
   <div class="controls">
-    {#if $timerState === 'idle'}
+    {#if $timerState === "idle"}
       <button on:click={timer.start}>Start</button>
-    {:else if $timerState === 'work'}
+    {:else if $timerState === "work"}
       {#if $isPaused}
         <button on:click={timer.resume}>Resume</button>
       {:else}
         <button on:click={timer.pause}>Pause</button>
       {/if}
       <button class="secondary" on:click={timer.stop}>Stop</button>
-    {:else if $timerState === 'rollover'}
+    {:else if $timerState === "rollover"}
       <button on:click={() => timer.takeBreak()}>Take Break</button>
       <button class="secondary" on:click={timer.skipBreak}>Skip</button>
-    {:else if $timerState === 'break'}
+    {:else if $timerState === "break"}
       <button class="secondary" on:click={timer.stop}>End Break</button>
     {/if}
   </div>
