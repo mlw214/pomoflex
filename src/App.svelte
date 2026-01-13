@@ -48,7 +48,7 @@
       {/if}
       <button class="secondary" on:click={timer.stop}>Stop</button>
     {:else if $timerState === "rollover"}
-      <div class="break-selector">
+      <div class="rollover-controls">
         <span class="break-label">Take a break:</span>
         <div class="break-options">
           {#each availablePresets as preset (preset.seconds)}
@@ -65,8 +65,10 @@
             </button>
           {/if}
         </div>
+        <button class="secondary skip-btn" on:click={timer.skipBreak}
+          >Skip</button
+        >
       </div>
-      <button class="secondary" on:click={timer.skipBreak}>Skip</button>
     {:else if $timerState === "break"}
       <button class="secondary" on:click={timer.stop}>End Break</button>
     {/if}
@@ -146,11 +148,11 @@
     letter-spacing: 0.1em;
   }
 
-  .break-selector {
+  .rollover-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
   }
 
   .break-label {
@@ -170,9 +172,14 @@
     font-size: var(--font-size-sm);
     background-color: var(--color-break);
     color: var(--color-bg);
+    min-width: 70px;
   }
 
   .break-option:hover {
     filter: brightness(0.9);
+  }
+
+  .skip-btn {
+    min-width: 70px;
   }
 </style>
