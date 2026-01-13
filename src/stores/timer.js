@@ -39,16 +39,19 @@ const createTimerStore = () => {
   });
 
   let intervalId = null;
+  let endTime = null; // Timestamp when timer should end
 
   const clearTimer = () => {
     if (intervalId) {
       clearInterval(intervalId);
       intervalId = null;
     }
+    endTime = null;
   };
 
-  const startCountdown = () => {
+  const startCountdown = (seconds) => {
     clearTimer();
+    endTime = Date.now() + seconds * 1000;
     intervalId = setInterval(tick, 1000);
   };
 
@@ -56,9 +59,11 @@ const createTimerStore = () => {
     const currentState = get({ subscribe });
 
     // Don't tick if paused (interval should be cleared, but defensive check)
-    if (currentState.isPaused) return;
+    if (currentState.isPaused || !endTime) return;
 
-    const newSeconds = currentState.seconds - 1;
+    // Calculate remaining time from timestamps (handles backgrounded tabs)
+    const remaining = Math.ceil((endTime - Date.now()) / 1000);
+    const newSeconds = Math.max(0, remaining);
 
     // Handle timer expiration based on current state
     if (newSeconds <= 0) {
@@ -82,7 +87,7 @@ const createTimerStore = () => {
           });
 
           // Start rollover countdown after state update
-          startCountdown();
+          startCountdown(DURATIONS.rollover);
           break;
         }
 
@@ -97,7 +102,7 @@ const createTimerStore = () => {
           });
 
           // Start work countdown after state update
-          startCountdown();
+          startCountdown(DURATIONS.work);
           break;
         }
 
@@ -115,11 +120,23 @@ const createTimerStore = () => {
         default:
           break;
       }
-    } else {
-      // Normal tick - just decrement seconds
+    } else if (newSeconds !== currentState.seconds) {
+      // Update seconds if changed (may skip multiple seconds if backgrounded)
       update((state) => ({ ...state, seconds: newSeconds }));
     }
   };
+
+  // Handle visibility change - recalculate timer when tab becomes visible
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === "visible" && endTime) {
+      tick();
+    }
+  };
+
+  // Set up visibility listener (check for browser environment)
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  }
 
   return {
     subscribe,
@@ -138,7 +155,7 @@ const createTimerStore = () => {
         isPaused: false,
       });
 
-      startCountdown();
+      startCountdown(DURATIONS.work);
     },
 
     /**
@@ -177,7 +194,7 @@ const createTimerStore = () => {
         isPaused: false,
       });
 
-      startCountdown();
+      startCountdown(breakDuration);
     },
 
     /**
@@ -195,7 +212,7 @@ const createTimerStore = () => {
         isPaused: false,
       });
 
-      startCountdown();
+      startCountdown(DURATIONS.work);
     },
 
     /**
@@ -217,7 +234,7 @@ const createTimerStore = () => {
       if (currentState.state !== "work" || !currentState.isPaused) return;
 
       update((state) => ({ ...state, isPaused: false }));
-      startCountdown();
+      startCountdown(currentState.seconds);
     },
 
     /**
@@ -252,6 +269,12 @@ const createTimerStore = () => {
      */
     destroy: () => {
       clearTimer();
+      if (typeof document !== "undefined") {
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange,
+        );
+      }
     },
   };
 };
