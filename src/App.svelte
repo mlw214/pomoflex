@@ -26,9 +26,6 @@
 
   // Filter presets to only show those <= current deficit
   $: availablePresets = BREAK_PRESETS.filter((p) => p.seconds <= $breakDeficit);
-  $: showAllButton =
-    $breakDeficit > 0 &&
-    !availablePresets.some((p) => p.seconds === $breakDeficit);
 </script>
 
 <main>
@@ -59,11 +56,6 @@
               {preset.label}
             </button>
           {/each}
-          {#if showAllButton}
-            <button class="break-option" on:click={() => timer.takeBreak()}>
-              All ({formatDuration($breakDeficit)})
-            </button>
-          {/if}
         </div>
         <button class="secondary skip-btn" on:click={timer.skipBreak}
           >Skip</button
@@ -163,7 +155,6 @@
   .break-options {
     display: flex;
     gap: var(--spacing-sm);
-    flex-wrap: wrap;
     justify-content: center;
   }
 
@@ -172,7 +163,6 @@
     font-size: var(--font-size-sm);
     background-color: var(--color-break);
     color: var(--color-bg);
-    min-width: 70px;
   }
 
   .break-option:hover {
