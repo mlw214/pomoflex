@@ -9,9 +9,10 @@
   export let seconds = 1500; // Default 25 minutes
   export let sessionType = 'work';
 
-  // Format seconds into MM:SS
-  $: minutes = Math.floor(seconds / 60);
-  $: secs = seconds % 60;
+  // Format seconds into MM:SS (clamp to 0 to prevent negative display)
+  $: clampedSeconds = Math.max(0, seconds);
+  $: minutes = Math.floor(clampedSeconds / 60);
+  $: secs = clampedSeconds % 60;
   $: displayTime = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
   // Map session type to display label
