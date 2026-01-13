@@ -163,13 +163,10 @@
     font-size: var(--font-size-sm);
     background-color: var(--color-break);
     color: var(--color-bg);
+    min-width: 5rem;
   }
 
   .break-option:hover {
     filter: brightness(0.9);
-  }
-
-  .skip-btn {
-    min-width: 70px;
   }
 </style>
