@@ -16,6 +16,19 @@
     const mins = Math.round(seconds / 60);
     return `${mins} min`;
   };
+
+  // Preset break durations (in seconds)
+  const BREAK_PRESETS = [
+    { seconds: 5 * 60, label: "5 min" },
+    { seconds: 10 * 60, label: "10 min" },
+    { seconds: 15 * 60, label: "15 min" },
+  ];
+
+  // Filter presets to only show those <= current deficit
+  $: availablePresets = BREAK_PRESETS.filter((p) => p.seconds <= $breakDeficit);
+  $: showAllButton =
+    $breakDeficit > 0 &&
+    !availablePresets.some((p) => p.seconds === $breakDeficit);
 </script>
 
 <main>
@@ -35,7 +48,24 @@
       {/if}
       <button class="secondary" on:click={timer.stop}>Stop</button>
     {:else if $timerState === "rollover"}
-      <button on:click={() => timer.takeBreak()}>Take Break</button>
+      <div class="break-selector">
+        <span class="break-label">Take a break:</span>
+        <div class="break-options">
+          {#each availablePresets as preset (preset.seconds)}
+            <button
+              class="break-option"
+              on:click={() => timer.takeBreak(preset.seconds)}
+            >
+              {preset.label}
+            </button>
+          {/each}
+          {#if showAllButton}
+            <button class="break-option" on:click={() => timer.takeBreak()}>
+              All ({formatDuration($breakDeficit)})
+            </button>
+          {/if}
+        </div>
+      </div>
       <button class="secondary" on:click={timer.skipBreak}>Skip</button>
     {:else if $timerState === "break"}
       <button class="secondary" on:click={timer.stop}>End Break</button>
@@ -114,5 +144,35 @@
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.1em;
+  }
+
+  .break-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .break-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .break-options {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .break-option {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-break);
+    color: var(--color-bg);
+  }
+
+  .break-option:hover {
+    filter: brightness(0.9);
   }
 </style>
