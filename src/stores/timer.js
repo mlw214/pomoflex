@@ -1,4 +1,5 @@
 import { writable, derived, get } from "svelte/store";
+import { playBell } from "../lib/audio.js";
 
 /**
  * Timer State Machine
@@ -72,6 +73,7 @@ const createTimerStore = () => {
       switch (currentState.state) {
         case "work": {
           // Work complete → enter rollover window
+          playBell();
           const newPomodoros = currentState.completedPomodoros + 1;
           const earnedBreak =
             newPomodoros % LONG_BREAK_INTERVAL === 0
@@ -93,6 +95,7 @@ const createTimerStore = () => {
 
         case "rollover": {
           // Rollover expired → auto-start new work session
+          playBell();
           set({
             state: "work",
             seconds: DURATIONS.work,
@@ -108,6 +111,7 @@ const createTimerStore = () => {
 
         case "break":
           // Break complete → return to idle
+          playBell();
           set({
             state: "idle",
             seconds: DURATIONS.work,
