@@ -1,5 +1,6 @@
 import { writable, derived, get } from "svelte/store";
 import { playBell } from "../lib/audio.js";
+import { requestPermission, notify } from "../lib/notifications.js";
 
 /**
  * Timer State Machine
@@ -74,6 +75,7 @@ const createTimerStore = () => {
         case "work": {
           // Work complete → enter rollover window
           playBell();
+          notify("Work session complete!", "Time for a break.");
           const newPomodoros = currentState.completedPomodoros + 1;
           const earnedBreak =
             newPomodoros % LONG_BREAK_INTERVAL === 0
@@ -96,6 +98,7 @@ const createTimerStore = () => {
         case "rollover": {
           // Rollover expired → auto-start new work session
           playBell();
+          notify("Break skipped", "New work session started.");
           set({
             state: "work",
             seconds: DURATIONS.work,
@@ -112,6 +115,7 @@ const createTimerStore = () => {
         case "break":
           // Break complete → return to idle
           playBell();
+          notify("Break complete!", "Ready for another session?");
           set({
             state: "idle",
             seconds: DURATIONS.work,
@@ -151,6 +155,9 @@ const createTimerStore = () => {
     start: () => {
       const currentState = get({ subscribe });
       if (currentState.state !== "idle") return;
+
+      // Request notification permission on first interaction
+      requestPermission();
 
       set({
         ...currentState,
